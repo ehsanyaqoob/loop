@@ -1,0 +1,63 @@
+name: loop
+description: "A new Flutter project."
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  # external dependencies 
+  provider: 
+  dio: 
+  shared_preferences: 
+  flutter_secure_storage: 
+  intl: 
+  logger: 
+  http:
+  cached_network_image: 
+  flutter_svg:
+  
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/fonts/
+
+
+  fonts:
+    - family: Figtree
+      fonts:
+        - asset: assets/fonts/FigtreeLight.ttf
+          weight: 300 
+        - asset: assets/fonts/FigtreeRegular.ttf
+          weight: 400      
+        - asset: assets/fonts/FigtreeMedium.ttf
+          weight: 500  
+        - asset: assets/fonts/FigtreeSemiBold.ttf
+          weight: 600    
+        - asset: assets/fonts/FigtreeBold.ttf
+          weight: 700     
+        - asset: assets/fonts/FigtreeExtraBold.ttf
+          weight: 800    
+        - asset: assets/fonts/FigtreeBlack.ttf
+          weight: 900    
+          
+flutter_assets:
+  assets_path: assets/
+  output_path: lib/generated/
+  filename: assets.dart
+  field_prefix: ""

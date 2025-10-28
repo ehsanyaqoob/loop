@@ -1,0 +1,97 @@
+// # COMPLETE NAVIGATION GUIDE - ALL IN ONE
+
+// ```dart
+// // =========== BASIC NAVIGATION ===========
+// NavigationHelper.navigateTo(AppLinks.home);
+// NavigationHelper.navigateTo(AppLinks.profile, arguments: {'userId': '123', 'name': 'John'});
+// NavigationHelper.toSplash();
+// NavigationHelper.toOnboarding();
+// NavigationHelper.toAuth();
+// NavigationHelper.toHome();
+// NavigationHelper.toNavBar();
+// NavigationHelper.toProfile();
+// NavigationHelper.toScan();
+// NavigationHelper.toProgress();
+// NavigationHelper.toRewards();
+// NavigationHelper.toMenu();
+// NavigationHelper.toEditProfile();
+// NavigationHelper.tonotification();
+// NavigationHelper.tobookmark();
+// NavigationHelper.toSecurity();
+// NavigationHelper.toPrivacyPolicy();
+// NavigationHelper.toHelpCenter();
+// NavigationHelper.toInviteFriends();
+// NavigationHelper.toScanScreen();
+// NavigationHelper.toDayMealScreen();
+// NavigationHelper.toChatAiScreen();
+
+// // =========== REPLACEMENT & CLEAR STACK ===========
+// NavigationHelper.navigateTo(AppLinks.home, isOffAll: false);
+// await NavigationService().navigateReplacement(AppLinks.home);
+// NavigationHelper.navigateTo(AppLinks.home, isOffAll: true);
+// NavigationHelper.clearStackAndGoTo(AppLinks.splash);
+// await NavigationService().navigateAndRemoveUntil(AppLinks.home);
+
+// // =========== BACK NAVIGATION ===========
+// NavigationHelper.back();
+// NavigationHelper.back('success_data');
+// NavigationHelper.back({'status': 'success', 'data': user});
+// NavigationHelper.backUntil(AppLinks.home);
+// NavigationHelper.backToHome();
+// bool canGoBack = NavigationHelper.canPop;
+
+// // =========== DIRECT NAVIGATION SERVICE ===========
+// await NavigationService().navigateTo(AppLinks.home);
+// await NavigationService().navigateReplacement(AppLinks.profile);
+// await NavigationService().navigateAndRemoveUntil(AppLinks.splash);
+// NavigationService().goBack();
+// NavigationService().goBackWithResult('data');
+// NavigationService().popUntil(AppLinks.home);
+
+// // =========== WIDGET NAVIGATION ===========
+// NavigationHelper.navigateToWidget(() => CustomWidget(), offAll: false);
+// NavigationHelper.navigateToWidget(() => CustomWidget(), offAll: true);
+// await NavigationService().navigateTo('/custom', arguments: {'widget': () => CustomWidget()});
+
+// // =========== DIALOG & SNACKBAR ===========
+// NavigationService().showDialog(
+//   builder: (context) => AlertDialog(
+//     title: Text('Confirm'),
+//     actions: [
+//       TextButton(onPressed: () => NavigationHelper.back(), child: Text('Cancel')),
+//       TextButton(onPressed: () => NavigationHelper.back('confirmed'), child: Text('OK')),
+//     ],
+//   ),
+// );
+
+// NavigationService().showSnackBar(message: 'Operation successful!', duration: Duration(seconds: 3));
+
+// // =========== CONDITIONAL NAVIGATION ===========
+// if (user.isLoggedIn) { NavigationHelper.toHome(); } else { NavigationHelper.toAuth(); }
+// final prefs = await SharedPreferences.getInstance();
+// if (prefs.getBool('isFirstLaunch') ?? true) { NavigationHelper.toOnboarding(); } else { NavigationHelper.toHome(); }
+
+// // =========== SEQUENTIAL NAVIGATION ===========
+// await NavigationHelper.toOnboarding();
+// await Future.delayed(Duration(seconds: 2));
+// await NavigationHelper.toAuth();
+
+// // =========== NAVIGATION WITH CALLBACKS ===========
+// NavigationHelper.navigateTo(AppLinks.editProfile).then((result) {
+//   if (result == 'updated') { /* Refresh profile */ }
+// });
+
+// // =========== SPECIAL TRANSITIONS ===========
+// NavigationHelper.toOnboardingWithCircularReveal();
+
+// // =========== RELOAD & UTILITY ===========
+// NavigationHelper.reloadCurrent();
+// String? currentRoute = NavigationHelper.currentRoute;
+
+// // =========== RECEIVE ARGUMENTS IN SCREEN ===========
+// // In your screen widget:
+// final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+// final userId = args?['userId'] as String?;
+// ```
+
+// **ALL NAVIGATION METHODS IN ONE PLACE - COPY AND USE ANYWHERE** 🚀
