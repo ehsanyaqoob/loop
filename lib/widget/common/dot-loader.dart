@@ -1,50 +1,79 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:loop/theme/theme_helper.dart';
-import 'package:provider/provider.dart';
-import 'package:loop/theme/theme_provider.dart';
 import 'package:loop/theme/colors.dart';
 
-class LoopLoader extends StatefulWidget {
-  static const int dotCount = 6;
-  static const double defaultSize = 36;
-  static const double defaultDotSize = 8;
-
+class LoopLoader extends StatelessWidget {
   final Color? color;
-  final double? size;
-  final double? dotSize;
+  final double size;
+  final double dotSize;
+  final Duration duration;
   final bool useContainer;
   final Color? containerColor;
   final double containerPadding;
-  final Duration duration;
-  final Curve curve;
 
   const LoopLoader({
-    super.key, 
+    super.key,
     this.color,
-    this.size,
-    this.dotSize,
+    this.size = 20,
+    this.dotSize = 4,
+    this.duration = const Duration(milliseconds: 600),
     this.useContainer = false,
     this.containerColor,
-    this.containerPadding = 8,
-    this.duration = const Duration(milliseconds: 1200),
-    this.curve = Curves.easeInOutSine,
+    this.containerPadding = 4,
   });
 
   @override
-  State<LoopLoader> createState() => _LoopLoaderState();
+  Widget build(BuildContext context) {
+    final loader = _DotLoaderWidget(
+      color: color ?? AppColors.primary,
+      size: size,
+      dotSize: dotSize,
+      duration: duration,
+    );
+
+    if (useContainer) {
+      return Container(
+        padding: EdgeInsets.all(containerPadding),
+        decoration: BoxDecoration(
+          color: containerColor ?? Colors.grey.withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: loader,
+      );
+    }
+
+    return loader;
+  }
 }
 
-class _LoopLoaderState extends State<LoopLoader>
+class _DotLoaderWidget extends StatefulWidget {
+  final Color color;
+  final double size;
+  final double dotSize;
+  final Duration duration;
+
+  const _DotLoaderWidget({
+    required this.color,
+    required this.size,
+    required this.dotSize,
+    required this.duration,
+  });
+
+  @override
+  State<_DotLoaderWidget> createState() => _DotLoaderWidgetState();
+}
+
+class _DotLoaderWidgetState extends State<_DotLoaderWidget>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+  late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      vsync: this,
       duration: widget.duration,
+      vsync: this,
     )..repeat();
   }
 
@@ -56,168 +85,89 @@ class _LoopLoaderState extends State<LoopLoader>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
-        // Use theme-aware loader color
-        final Color loaderColor = widget.color ?? ThemeColors.buttonBackground(context);
-
-        final double size = widget.size ?? LoopLoader.defaultSize;
-        final double dotSize = widget.dotSize ?? LoopLoader.defaultDotSize;
-
-        final loaderWidget = SizedBox(
-          width: size,
-          height: size,
-          child: AnimatedBuilder(
-            animation: CurvedAnimation(
-              parent: _controller,
-              curve: widget.curve,
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return CustomPaint(
+            painter: _DotLoaderPainter(
+              progress: _controller.value,
+              color: widget.color,
+              dotSize: widget.dotSize,
             ),
-            builder: (_, __) => CustomPaint(
-              painter: _DotsPainter(
-                progress: _controller.value,
-                color: loaderColor,
-                dotSize: dotSize,
-                size: size,
-              ),
-            ),
-          ),
-        );
-
-        // Return with container if requested
-        if (widget.useContainer) {
-          return Container(
-            padding: EdgeInsets.all(widget.containerPadding),
-            decoration: BoxDecoration(
-              color: widget.containerColor ?? Colors.transparent,
-              shape: BoxShape.circle,
-            ),
-            child: loaderWidget,
           );
-        }
-
-        return loaderWidget;
-      },
+        },
+      ),
     );
   }
 }
 
-class _DotsPainter extends CustomPainter {
+class _DotLoaderPainter extends CustomPainter {
   final double progress;
   final Color color;
   final double dotSize;
-  final double size;
 
-  _DotsPainter({
+  _DotLoaderPainter({
     required this.progress,
     required this.color,
     required this.dotSize,
-    required this.size,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
     final center = size.center(Offset.zero);
-    final radius = this.size / 2.4;
+    final radius = size.width / 2 - dotSize;
 
-    for (int i = 0; i < LoopLoader.dotCount; i++) {
-      final double angleStep = 2 * pi / LoopLoader.dotCount;
-      final double angle = (progress * 2 * pi) + (i * angleStep);
-
-      // Make pulse-like opacity transition
-      final double fade = 0.5 + 0.5 * sin(progress * 2 * pi + i * 0.8);
-      final Paint dotPaint = Paint()
-        ..color = color.withOpacity(fade.clamp(0.3, 1.0));
-
-      final Offset offset = Offset(
-        center.dx + radius * cos(angle),
-        center.dy + radius * sin(angle),
+    // Draw 3 dots that animate around a circle
+    for (int i = 0; i < 3; i++) {
+      final angle = 2 * pi * (progress + i / 3);
+      final x = center.dx + radius * cos(angle);
+      final y = center.dy + radius * sin(angle);
+      
+      // Calculate opacity based on position
+      final dotProgress = (progress + i / 3) % 1.0;
+      final opacity = dotProgress < 0.5 ? dotProgress * 2 : (1 - dotProgress) * 2;
+      
+      canvas.drawCircle(
+        Offset(x, y),
+        dotSize,
+        paint..color = color.withOpacity(opacity.clamp(0.3, 1.0)),
       );
-      canvas.drawCircle(offset, dotSize / 2, dotPaint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _DotsPainter oldDelegate) =>
-      oldDelegate.progress != progress || 
-      oldDelegate.color != color ||
-      oldDelegate.dotSize != dotSize ||
-      oldDelegate.size != size;
+  bool shouldRepaint(covariant _DotLoaderPainter oldDelegate) {
+    return progress != oldDelegate.progress ||
+        color != oldDelegate.color ||
+        dotSize != oldDelegate.dotSize;
+  }
 }
 
-// ========== CONVENIENCE LOADER VARIANTS ==========
+// Extension for convenient loader variants
+extension DotLoaderVariants on LoopLoader {
+  static LoopLoader small({Color? color}) => LoopLoader(
+        size: 16,
+        dotSize: 3,
+        color: color,
+      );
 
-extension LoopLoaderVariants on LoopLoader {
-  // Small loader for buttons
-  static LoopLoader small({Color? color, bool useContainer = false}) => LoopLoader(
-    size: 24,
-    dotSize: 6,
-    color: color,
-    useContainer: useContainer,
-    duration: const Duration(milliseconds: 800),
-  );
+  static LoopLoader medium({Color? color}) => LoopLoader(
+        size: 20,
+        dotSize: 4,
+        color: color,
+      );
 
-  // Medium loader for general use
-  static LoopLoader medium({Color? color, bool useContainer = false}) => LoopLoader(
-    size: 36,
-    dotSize: 8,
-    color: color,
-    useContainer: useContainer,
-  );
+  static LoopLoader large({Color? color}) => LoopLoader(
+        size: 24,
+        dotSize: 5,
+        color: color,
+      );
 
-  // Large loader for full screen
-  static LoopLoader large({Color? color, bool useContainer = false}) => LoopLoader(
-    size: 48,
-    dotSize: 10,
-    color: color,
-    useContainer: useContainer,
-    duration: const Duration(milliseconds: 1500),
-  );
-
-  // Primary colored loader
-  static LoopLoader primary({bool useContainer = false}) => LoopLoader(
-    color: AppColors.primary,
-    useContainer: useContainer,
-  );
-
-  // Success colored loader
-  static LoopLoader success({bool useContainer = false}) => LoopLoader(
-    color: AppColors.success,
-    useContainer: useContainer,
-  );
-
-  // Error colored loader
-  static LoopLoader error({bool useContainer = false}) => LoopLoader(
-    color: AppColors.error,
-    useContainer: useContainer,
-  );
-
-  // Warning colored loader
-  static LoopLoader warning({bool useContainer = false}) => LoopLoader(
-    color: AppColors.warning,
-    useContainer: useContainer,
-  );
-
-  // With container background
-  static LoopLoader withContainer({
-    Color? color,
-    Color? containerColor,
-    double size = 36,
-  }) => LoopLoader(
-    color: color,
-    size: size,
-    useContainer: true,
-    containerColor: containerColor,
-  );
-
-  // Fast loader for quick actions
-  static LoopLoader fast({Color? color}) => LoopLoader(
-    color: color,
-    duration: const Duration(milliseconds: 600),
-  );
-
-  // Slow loader for dramatic effect
-  static LoopLoader slow({Color? color}) => LoopLoader(
-    color: color,
-    duration: const Duration(milliseconds: 2000),
-  );
+  static LoopLoader primary() => LoopLoader(color: AppColors.primary);
+  static LoopLoader white() => LoopLoader(color: Colors.white);
+  static LoopLoader error() => LoopLoader(color: AppColors.error);
 }

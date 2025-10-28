@@ -1,33 +1,26 @@
 import 'package:loop/export.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferences.getInstance();
-
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // App lifecycle provider
         ChangeNotifierProvider(create: (_) => AppLifecycleProvider()),
-
-        // Theme provider
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-
-        // Splash provider
         ChangeNotifierProvider(create: (_) => SplashProvider()),
-        // ChangeNotifierProvider(create: (_) => AuthProvider()),
-        // ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        // ChangeNotifierProvider(create: (_) => NavProvider()),
+        ChangeNotifierProvider(create: (_) => InitialProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
-            title: 'Loop', 
+            title: 'Loop',
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,
@@ -45,10 +38,13 @@ class MyApp extends StatelessWidget {
                   systemNavigationBarDividerColor: Colors.transparent,
                 ),
                 child: GestureDetector(
-                  onTap: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: child,
+                  onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                  child: StateAwareWidget(
+                    child: child ?? const SizedBox(),
+                    onResume: () => debugPrint("App resumed callback fired."),
+                    onPause: () => debugPrint("App paused callback fired."),
+                    onInactive: () => debugPrint("App inactive callback fired."),
+                  ),
                 ),
               );
             },

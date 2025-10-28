@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loop/export.dart';
-import 'package:loop/features/intials/intial_screen.dart';
 import 'package:loop/generated/assets.dart';
 import 'package:loop/generated/extensions/extension.dart';
 import 'package:loop/widget/common/dot-loader.dart';
@@ -18,76 +17,45 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
-  bool _showLoader = false;
+  late Animation<double> _logoFadeAnimation;
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
-    _updateSystemUi();
-    _startSplashSequence();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SplashProvider>().initializeSplash(context);
+    });
   }
 
   void _initializeAnimations() {
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1500),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+    _scaleAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack),
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOutCubic),
+      ),
+    );
+
+    _logoFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeIn),
       ),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.4, 1.0, curve: Curves.easeIn),
+        curve: const Interval(0.3, 0.7, curve: Curves.easeIn),
       ),
     );
 
     _animationController.forward();
-  }
-
-  void _startSplashSequence() {
-    // Show loader after 2 seconds
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        _showLoader = true;
-      });
-    });
-
-    // Navigate to home after 4 seconds total
-    Future.delayed(const Duration(seconds: 4), () {
-      _navigateToHome();
-    });
-  }
-
-  void _navigateToHome() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => HomeScreen()),
-    );
-  }
-
-  void _updateSystemUi() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-      final bool isDark = themeProvider.isDarkMode;
-
-      SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-          systemNavigationBarColor: context.background,
-          systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-          systemNavigationBarDividerColor: Colors.transparent,
-        ),
-      );
-
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    });
   }
 
   @override
@@ -98,104 +66,138 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: context.isDarkMode ? Brightness.light : Brightness.dark,
-            systemNavigationBarColor: context.scaffoldBackground,
-            systemNavigationBarIconBrightness: context.isDarkMode ? Brightness.light : Brightness.dark,
-          ),
-          child: Scaffold(
-            backgroundColor: context.scaffoldBackground,
-            body: SafeArea(
-              bottom: false,
-              child: Stack(
+    return Scaffold(
+      backgroundColor: context.scaffoldBackground,
+      body: SafeArea(
+        bottom: false,
+        child: Stack(
+          children: [
+            // Main logo centered
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  /// 🌿 Center Logo Animation
-                  Center(
-                    child: ScaleTransition(
-                      scale: _scaleAnimation,
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              height: 170,
-                              width: 170,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: SvgPicture.asset(
-                                  Assets.fire,
-                                  height: 100.0,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                            20.height,
-                            MyText(
-                              text: "Loop",
-                              color: context.text,
-                              size: 28,
-                              weight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ],
-                        ),
+                  ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: FadeTransition(
+                      opacity: _logoFadeAnimation,
+                      child: SvgPicture.asset(
+                        Assets.loop,
+                        height: 150.0,
+                        color: ThemeColors.buttonBackground(context),
                       ),
                     ),
                   ),
-
-                  /// ⏳ Progress loader (bottom)
-                  if (_showLoader)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: MediaQuery.of(context).padding.bottom + 50,
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            MyText(
-                              text: "Loading your data...",
-                              color: context.subtitle,
-                              size: 14,
-                              weight: FontWeight.w400,
-                            ),
-                            8.height,
-                            LoopLoader(),
-                          ],
-                        ),
-                      ),
+                  16.height,
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: MyText(
+                      text: "Loop",
+                      color: context.text,
+                      size: 30,
+                      weight: FontWeight.bold,
+                      letterSpacing: -0.5,
                     ),
-
-                  /// 🌗 Debug theme toggle
-                  if (kDebugMode)
-                    Positioned(
-                      top: 20,
-                      right: 20,
-                      child: FloatingActionButton(
-                        mini: true,
-                        backgroundColor: context.surface,
-                        onPressed: () => themeProvider.toggleTheme(),
-                        child: Icon(
-                          context.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                          color: context.icon,
-                        ),
-                      ),
-                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-        );
-      },
+
+            // Bottom section with loader
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom + 40,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Consumer<SplashProvider>(
+                      builder: (context, provider, child) {
+                        return AnimatedOpacity(
+                          opacity: provider.showLoader ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              LoopLoader(),
+                              12.height,
+                              MyText(
+                                text: "Loading...",
+                                color: context.subtitle.withOpacity(0.7),
+                                size: 16.0,
+                                weight: FontWeight.w500,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    32.height,
+                    // Footer text - Instagram style
+                    FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        children: [
+                          MyText(
+                            text: "By",
+                            color: context.subtitle.withOpacity(0.5),
+                            size: 16.0,
+                            weight: FontWeight.w400,
+                          ),
+                          4.height,
+                          MyText(
+                            text: "flex",
+                            color: context.buttonBackground,
+                            size: 18.0,
+                            weight: FontWeight.w600,
+                            letterSpacing: 0.3,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Debug theme toggle
+            if (kDebugMode)
+              Positioned(
+                top: 20,
+                right: 20,
+                child: Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, child) {
+                    return Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => themeProvider.toggleTheme(),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: context.surface.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            context.isDarkMode
+                                ? Icons.light_mode_outlined
+                                : Icons.dark_mode_outlined,
+                            color: context.icon,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

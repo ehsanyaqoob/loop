@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:loop/export.dart';
 import 'package:loop/widget/common/dot-loader.dart';
 
@@ -103,20 +104,10 @@ class MyButtonWithIcon extends StatelessWidget {
                 },
           child: Center(
             child: isLoading
-                ? LoopLoader(
-                    size: loaderSize,
-                    dotSize: loaderDotSize,
-                    color: effectiveLoaderColor,
-                    useContainer: useLoaderContainer,
-                    containerColor: loaderContainerColor ?? 
-                        _getLoaderContainerColor(bgColor, context),
-                    containerPadding: loaderContainerPadding,
-                  )
+                ? _buildLoader(effectiveLoaderColor, bgColor, context)
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Using Icon instead of SVG for simplicity
-                      // Replace with your SVG widget if needed
                       Icon(
                         _getIconFromPath(iconPath),
                         size: iconSize,
@@ -139,9 +130,28 @@ class MyButtonWithIcon extends StatelessWidget {
     );
   }
 
+  Widget _buildLoader(Color loaderColor, Color bgColor, BuildContext context) {
+    // Use DotLoader if available, otherwise use LoopLoader
+    try {
+      return LoopLoader(
+        size: loaderSize,
+        dotSize: loaderDotSize,
+        color: loaderColor,
+        useContainer: useLoaderContainer,
+        containerColor: loaderContainerColor ?? 
+            _getLoaderContainerColor(bgColor, context),
+        containerPadding: loaderContainerPadding,
+      );
+    } catch (e) {
+      // Fallback to LoopLoader if DotLoader is not available
+      return LoopLoader(
+        size: loaderSize,
+        color: loaderColor,
+      );
+    }
+  }
+
   IconData _getIconFromPath(String path) {
-    // Map your icon paths to IconData
-    // You can replace this with your SVG widget
     final iconMap = {
       'add': Icons.add,
       'edit': Icons.edit,
@@ -188,10 +198,10 @@ class MyButton extends StatelessWidget {
   final double radius;
   final double? fontSize;
   final Color? outlineColor;
-  final bool hasicon, isleft, hasshadow, hasgrad, isactive;
+  final bool hasIcon, isLeft, hasShadow, hasGradient, isActive;
   final Color? backgroundColor, fontColor;
   final String? choiceIcon;
-  final double mTop, mBottom, mhoriz;
+  final double mTop, mBottom, mHoriz;
   final FontWeight? fontWeight;
   final bool isLoading;
   final Color? loaderColor;
@@ -214,13 +224,13 @@ class MyButton extends StatelessWidget {
     this.outlineColor,
     this.radius = 16.0,
     this.choiceIcon,
-    this.isleft = false,
-    this.mhoriz = 0,
-    this.hasicon = false,
-    this.hasshadow = false,
+    this.isLeft = false,
+    this.mHoriz = 0,
+    this.hasIcon = false,
+    this.hasShadow = false,
     this.mBottom = 0,
-    this.hasgrad = false,
-    this.isactive = true,
+    this.hasGradient = false,
+    this.isActive = true,
     this.mTop = 0,
     this.fontWeight,
     this.isLoading = false,
@@ -235,7 +245,7 @@ class MyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = isactive
+    final bgColor = isActive
         ? backgroundColor ?? context.buttonBackground
         : context.buttonDisabled;
 
@@ -247,17 +257,17 @@ class MyButton extends StatelessWidget {
       margin: EdgeInsets.only(
         top: mTop,
         bottom: mBottom,
-        left: mhoriz,
-        right: mhoriz,
+        left: mHoriz,
+        right: mHoriz,
       ),
       height: height,
       width: width,
       decoration: BoxDecoration(
-        color: hasgrad ? null : bgColor,
-        gradient: hasgrad ? _getPrimaryGradient(context) : null,
+        color: hasGradient ? null : bgColor,
+        gradient: hasGradient ? _getPrimaryGradient(context) : null,
         border: Border.all(color: outlineColor ?? context.border),
         borderRadius: BorderRadius.circular(radius),
-        boxShadow: hasshadow
+        boxShadow: hasShadow
             ? [
                 BoxShadow(
                   color: context.shadow,
@@ -282,23 +292,13 @@ class MyButton extends StatelessWidget {
                 },
           child: Center(
             child: isLoading
-                ? LoopLoader(
-                    size: loaderSize,
-                    dotSize: loaderDotSize,
-                    color: effectiveLoaderColor,
-                    useContainer: useLoaderContainer,
-                    containerColor: loaderContainerColor ??
-                        _getLoaderContainerColor(bgColor, context),
-                    containerPadding: loaderContainerPadding,
-                  )
+                ? _buildLoader(effectiveLoaderColor, bgColor, context)
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (hasicon && choiceIcon != null)
+                      if (hasIcon && choiceIcon != null && isLeft)
                         Padding(
-                          padding: isleft
-                              ? const EdgeInsets.only(left: 10.0)
-                              : const EdgeInsets.only(right: 6),
+                          padding: const EdgeInsets.only(right: 8.0),
                           child: Icon(
                             _getIconFromPath(choiceIcon!),
                             size: 18,
@@ -306,7 +306,6 @@ class MyButton extends StatelessWidget {
                           ),
                         ),
                       MyText(
-                        paddingLeft: hasicon ? 8 : 0,
                         text: buttonText,
                         fontFamily: AppFonts.Inter,
                         size: fontSize ?? 16,
@@ -314,12 +313,40 @@ class MyButton extends StatelessWidget {
                         color: txtColor,
                         weight: fontWeight ?? FontWeight.w600,
                       ),
+                      if (hasIcon && choiceIcon != null && !isLeft)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Icon(
+                            _getIconFromPath(choiceIcon!),
+                            size: 18,
+                            color: txtColor,
+                          ),
+                        ),
                     ],
                   ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildLoader(Color loaderColor, Color bgColor, BuildContext context) {
+    try {
+      return LoopLoader(
+        size: loaderSize,
+        dotSize: loaderDotSize,
+        color: loaderColor,
+        useContainer: useLoaderContainer,
+        containerColor: loaderContainerColor ?? 
+            _getLoaderContainerColor(bgColor, context),
+        containerPadding: loaderContainerPadding,
+      );
+    } catch (e) {
+      return LoopLoader(
+        size: loaderSize,
+        color: loaderColor,
+      );
+    }
   }
 
   IconData _getIconFromPath(String path) {

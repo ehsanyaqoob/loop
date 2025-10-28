@@ -1,26 +1,79 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:loop/export.dart';
 
 class SplashProvider with ChangeNotifier {
-  bool _isLoading = true;
-  
-  bool get isLoading => _isLoading;
+  bool _showLoader = false;
+  bool _isInitialized = false;
+  Timer? _loaderTimer;
+  Timer? _navigationTimer;
 
-  SplashProvider() {
-    _startSplash();
-  }
+  bool get showLoader => _showLoader;
+  bool get isInitialized => _isInitialized;
 
-  void _startSplash() {
-    // Simple 4-second total delay, then navigate
-    Timer(const Duration(seconds: 4), () {
-      _isLoading = false;
+  /// Initialize splash screen with proper timing
+  Future<void> initializeSplash(BuildContext context) async {
+    if (_isInitialized) return;
+
+    _isInitialized = true;
+
+    // Show loader after initial animation completes
+    _loaderTimer = Timer(const Duration(milliseconds: 1500), () {
+      _showLoader = true;
       notifyListeners();
-      _navigateToHome();
+    });
+
+    // Perform any initialization tasks
+    await _performInitialization();
+
+    // Navigate to next screen after minimum splash duration (3-4 seconds total)
+    _navigationTimer = Timer(const Duration(milliseconds: 3500), () {
+      _navigateToInitialScreen(context);
     });
   }
 
-  void _navigateToHome() {
-    print('🏠 Navigating to Home');
-    // Navigator.of(context).pushReplacementNamed('/home');
+  /// Perform any app initialization tasks here
+  Future<void> _performInitialization() async {
+    try {
+      // Add your initialization logic here:
+      // - Load user preferences
+      // - Check authentication status
+      // - Fetch initial data
+      // - Initialize services
+
+      // Simulate some initialization work
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Example initialization tasks:
+      // await _loadUserPreferences();
+      // await _checkAuthStatus();
+      // await _initializeServices();
+    } catch (e) {
+      debugPrint('Initialization error: $e');
+    }
+  }
+
+  /// Navigate to the appropriate initial screen
+  void _navigateToInitialScreen(BuildContext context) {
+    if (!context.mounted) return;
+
+  NavigationHelper.navigateTo(
+  AppLinks.initial,
+  isOffAll: true, 
+);
+  }
+
+  /// Cancel all active timers
+  void _cancelTimers() {
+    _loaderTimer?.cancel();
+    _navigationTimer?.cancel();
+    _loaderTimer = null;
+    _navigationTimer = null;
+  }
+
+  @override
+  void dispose() {
+    _cancelTimers();
+    super.dispose();
   }
 }

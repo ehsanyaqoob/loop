@@ -1,4 +1,5 @@
 
+import 'package:loop/features/intials/intial_screen.dart';
 import 'package:loop/features/profile/presentation/screens/splash_screen.dart';
 import 'package:loop/export.dart';
 
@@ -20,7 +21,7 @@ class RouteConfig {
 
 class AppLinks {
   static const splash = '/splash_screen';
-  static const onboard = '/onboard';
+  static const initial = '/initial';
   static const auth = '/auth';
   static const home = '/home';
   static const navbar = '/navbar';
@@ -55,6 +56,13 @@ class AppRoutes {
       transitionDuration: const Duration(milliseconds: 600),
       isOffAll: true,
     ),
+    AppLinks.initial: RouteConfig(
+  name: AppLinks.initial,
+  page: () =>  InitialScreen(), // Make sure this widget exists
+  transitionBuilder: _circularRevealTransitionBuilder,
+  transitionDuration: const Duration(milliseconds: 500),
+  isOffAll: false,
+),
 
     // AppLinks.onboard: RouteConfig(
     //   name: AppLinks.onboard,
@@ -357,7 +365,7 @@ class NavigationHelper {
 
   // Predefined navigation methods for convenience - ONLY WORKING ROUTES
   static Future<void> toSplash() => navigateTo(AppLinks.splash);
-  static Future<void> toOnboarding() => navigateTo(AppLinks.onboard);
+  static Future<void> toOnboarding() => navigateTo(AppLinks.initial);
   static Future<void> tonotification() => navigateTo(AppLinks.notify);
   static Future<void> tobookmark() => navigateTo(AppLinks.bookmark);
   static Future<void> toProfile() => navigateTo(AppLinks.profile);
@@ -379,7 +387,7 @@ class NavigationHelper {
 
   // Custom transition methods (override default configs)
   static Future<void> toOnboardingWithCircularReveal() {
-    return navigateTo(AppLinks.onboard);
+    return navigateTo(AppLinks.initial);
   }
 
   // Direct widget navigation for special cases
@@ -403,7 +411,7 @@ class NavigationHelper {
     if (AppRoutes.hasRoute(AppLinks.home)) {
       backUntil(AppLinks.home);
     } else {
-      backUntil(AppLinks.onboard);
+      backUntil(AppLinks.initial);
     }
   }
 
