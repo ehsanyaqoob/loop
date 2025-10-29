@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:loop/core/constants.dart';
-import '../../../../theme/colors.dart';
 
+import 'package:loop/export.dart';
 class SplashLogoWidget extends StatelessWidget {
   final bool isDarkMode;
   final double size;

@@ -1,13 +1,7 @@
 import 'package:loop/export.dart';
 
 /// Represents different lifecycle states of the app.
-enum AppLifecycleStatus {
-  resumed,
-  inactive,
-  paused,
-  detached,
-  hidden,
-}
+enum AppLifecycleStatus { resumed, inactive, paused, detached, hidden }
 
 /// A ChangeNotifier that listens to and exposes app lifecycle events globally.
 class AppLifecycleProvider extends ChangeNotifier with WidgetsBindingObserver {

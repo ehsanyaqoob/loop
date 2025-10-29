@@ -21,6 +21,10 @@ dependencies:
   http:
   cached_network_image: 
   flutter_svg:
+  get_storage: 
+  internet_connection_checker:
+  pull_to_refresh: 
+  gap: 
   
 
 

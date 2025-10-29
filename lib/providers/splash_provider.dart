@@ -57,10 +57,7 @@ class SplashProvider with ChangeNotifier {
   void _navigateToInitialScreen(BuildContext context) {
     if (!context.mounted) return;
 
-  NavigationHelper.navigateTo(
-  AppLinks.initial,
-  isOffAll: true, 
-);
+ Navigate.toInitial();
   }
 
   /// Cancel all active timers
