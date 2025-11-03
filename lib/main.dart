@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
             onGenerateRoute: AppRoutes.generateRoute,
             initialRoute: AppLinks.splash,
             builder: (context, child) {
-              return AnnotatedRegion<SystemUiOverlayStyle>(
+              return AnnotatedRegion<SystemUiOverlayStyle>(  
                 value: SystemUiOverlayStyle(
                   statusBarColor: Colors.transparent,
                   statusBarIconBrightness: context.isDarkMode
