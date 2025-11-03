@@ -9,6 +9,7 @@ class Assets {
   static const String fontsFigtreeRegular = "assets/fonts/FigtreeRegular.ttf";
   static const String fontsFigtreeSemiBold = "assets/fonts/FigtreeSemiBold.ttf";
   static const String fire = "assets/images/fire.svg";
+  static const String countdown = "assets/images/countdown.svg";
 
     static const String loop = "assets/images/loop.svg";
     static const String person1 = "assets/images/person1.jpg";

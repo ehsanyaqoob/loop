@@ -1,522 +1,312 @@
-// import 'package:nutri/constants/export.dart';
 
-// class GenericAppBar extends StatefulWidget implements PreferredSizeWidget {
-//   final String title;
-//   final bool showSearch;
-//   final Function(String)? onSearchChanged;
-//   final String? searchHint;
-//   final double logoSize;
-//   final VoidCallback? onSettingsTap; // Add this
+import 'package:loop/export.dart';
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String? title;
+  final List<Widget>? actions;
+  final VoidCallback? onBackTap;
+  final bool centerTitle;
+  final bool showLeading;
+  final double textSize;
+  final TextAlign? textAlign;
+  final bool showNotificationIcon;
+  final bool showAvatarIcon;
+  final bool showBasketIcon;
+  final bool showMessageIcon;
+  final VoidCallback? onNotificationTap;
+  final VoidCallback? onAvatarTap;
+  final VoidCallback? onBasketTap;
+  final VoidCallback? onMessageTap;
+  final double elevation;
+  final Color? backButtonColor;
+  final String? subtitle;
+  final String? logoUrl;
+  final bool showShareIcon;
+  final VoidCallback? onShareTap;
 
-//   const GenericAppBar({
-//     super.key,
-//     required this.title,
-//     this.showSearch = false,
-//     this.onSearchChanged,
-//     this.searchHint,
-//     this.logoSize = 22.0,
-//     this.onSettingsTap, // Add this
-//   });
+  const CustomAppBar({
+    super.key,
+    this.title,
+    this.actions,
+    this.onBackTap,
+    this.centerTitle = true,
+    this.showLeading = false,
+    this.textSize = 18,
+    this.textAlign,
+    this.showNotificationIcon = false,
+    this.showAvatarIcon = false,
+    this.showBasketIcon = false,
+    this.showMessageIcon = false,
+    this.onNotificationTap,
+    this.onAvatarTap,
+    this.onBasketTap,
+    this.onMessageTap,
+    this.elevation = 0,
+    this.backButtonColor,
+    this.subtitle,
+    this.logoUrl,
+    this.showShareIcon = false,
+    this.onShareTap,
+  });
 
-//   @override
-//   State<GenericAppBar> createState() => _GenericAppBarState();
+  @override
+  Size get preferredSize => const Size.fromHeight(80);
 
-//   @override
-//   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-// }
+  Widget _buildBackButton(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: context.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: IconButton(
+        onPressed: onBackTap ?? () => Navigator.of(context).pop(),
+        icon: Icon(
+          Icons.arrow_back,
+          color: backButtonColor ?? context.primary,
+          size: 20,
+        ),
+        padding: EdgeInsets.zero,
+      ),
+    );
+  }
 
-// class _GenericAppBarState extends State<GenericAppBar> {
-//   final TextEditingController _searchController = TextEditingController();
-//   bool _isSearching = false;
-//   final FocusNode _searchFocusNode = FocusNode();
+  Widget _buildIconButton({
+    required BuildContext context,
+    required IconData icon,
+    required VoidCallback? onTap,
+    required double size,
+    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 4),
+    bool isAvatar = false,
+    String? tooltip,
+  }) {
+    return Padding(
+      padding: padding,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: context.primary.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: IconButton(
+          onPressed: onTap,
+          icon: Icon(
+            icon,
+            size: size,
+            color: context.primary,
+          ),
+          padding: EdgeInsets.zero,
+          tooltip: tooltip,
+        ),
+      ),
+    );
+  }
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     _searchFocusNode.addListener(_onFocusChange);
-//   }
+  List<Widget> _buildOptionalIcons(BuildContext context) {
+    final icons = <Widget>[];
 
-//   void _onFocusChange() {
-//     if (!_searchFocusNode.hasFocus && _searchController.text.isEmpty) {
-//       _toggleSearch();
-//     }
-//   }
+    if (showMessageIcon) {
+      icons.add(
+        _buildIconButton(
+          context: context,
+          icon: Icons.message,
+          onTap: onMessageTap,
+          size: 20,
+          tooltip: 'Messages',
+        ),
+      );
+    }
 
-//   @override
-//   void dispose() {
-//     _searchController.dispose();
-//     _searchFocusNode.removeListener(_onFocusChange);
-//     _searchFocusNode.dispose();
-//     super.dispose();
-//   }
+    if (showNotificationIcon) {
+      icons.add(
+        _buildIconButton(
+          context: context,
+          icon: Icons.notifications,
+          onTap: onNotificationTap,
+          size: 20,
+          tooltip: 'Notifications',
+        ),
+      );
+    }
 
-//   void _onSearchChanged(String query) {
-//     widget.onSearchChanged?.call(query);
-//   }
+    if (showAvatarIcon) {
+      icons.add(
+        _buildIconButton(
+          context: context,
+          icon: Icons.person,
+          onTap: onAvatarTap,
+          size: 20,
+          tooltip: 'Profile',
+        ),
+      );
+    }
 
-//   void _toggleSearch() {
-//     setState(() {
-//       _isSearching = !_isSearching;
-//       if (!_isSearching) {
-//         _searchController.clear();
-//         widget.onSearchChanged?.call('');
-//         _searchFocusNode.unfocus();
-//       } else {
-//         // Focus on search field when it appears
-//         WidgetsBinding.instance.addPostFrameCallback((_) {
-//           _searchFocusNode.requestFocus();
-//         });
-//       }
-//     });
-//   }
+    if (showShareIcon) {
+      icons.add(
+        _buildIconButton(
+          context: context,
+          icon: Icons.share,
+          onTap: onShareTap,
+          size: 20,
+          tooltip: 'Share',
+        ),
+      );
+    }
 
-//   void _clearSearch() {
-//     _searchController.clear();
-//     _onSearchChanged('');
-//   }
+    return icons;
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return GetBuilder<ThemeController>(
-//       builder: (themeController) {
-//         return AppBar(
-//           backgroundColor: kDynamicScaffoldBackground(context),
-//           elevation: 0,
-//           automaticallyImplyLeading: false,
-//           title: _isSearching
-//               ? _buildSearchField()
-//               : Row(
-//                   children: [
-//                     // Logo
-//                     Container(
-//                       height: 44,
-//                       width: 44,
-//                       decoration: BoxDecoration(
-//                         color: kDynamicPrimary(context).withOpacity(0.15),
-//                         shape: BoxShape.circle,
-//                       ),
-//                       child: Center(
-//                         child: SvgPicture.asset(
-//                           Assets.fire,
-//                           height: widget.logoSize,
-//                           width: widget.logoSize * 0.8,
-//                           color: kDynamicPrimary(context),
-//                         ),
-//                       ),
-//                     ),
-
-//                     const Gap(12),
-
-//                     // Title
-//                     Expanded(
-//                       child: MyText(
-//                         text: widget.title,
-//                         size: 18,
-//                         weight: FontWeight.w600,
-//                         color: kDynamicText(context),
-//                         maxLines: 1,
-//                         textOverflow: TextOverflow.ellipsis,
-//                       ),
-//                     ),
-
-//                     // Action Icons
-//                     Row(
-//                       mainAxisSize: MainAxisSize.min,
-//                       children: [
-//                         // Search Icon
-//                         if (widget.showSearch && !_isSearching)
-//                           IconButton(
-//                             icon: SvgPicture.asset(
-//                               Assets.searchunfilled,
-//                               height: 22,
-//                               color: kDynamicIcon(context),
-//                             ),
-//                             onPressed: _toggleSearch,
-//                           ),
-
-//                         // Settings Icon
-//                         if (widget.onSettingsTap != null)
-//                           IconButton(
-//                             icon: SvgPicture.asset(
-//                               Assets.settings,
-//                               height: 22,
-//                               color: kDynamicIcon(context),
-//                             ),
-//                             onPressed: widget.onSettingsTap,
-//                           ),
-//                       ],
-//                     ),
-//                   ],
-//                 ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildSearchField() {
-//     return Row(
-//       children: [
-//         Expanded(
-//           child: Container(
-//             key: const ValueKey('searchField'),
-//             width: double.infinity,
-//             margin: const EdgeInsets.only(right: 10, top: 26.0),
-//             child: MyTextField(
-//               controller: _searchController,
-//               focusNode: _searchFocusNode,
-//               hint: widget.searchHint ?? 'Search...',
-//               prefix: SvgPicture.asset(
-//                 Assets.searchunfilled,
-//                 height: 20,
-//                 color: kDynamicIcon(context),
-//               ),
-//               suffix: _searchController.text.isNotEmpty
-//                   ? IconButton(
-//                       icon: Icon(
-//                         Icons.clear,
-//                         color: kDynamicIcon(context),
-//                         size: 18,
-//                       ),
-//                       onPressed: _clearSearch,
-//                     )
-//                   : null,
-//               onChanged: _onSearchChanged,
-//               hintColor: kDynamicListTileSubtitle(context),
-//             ),
-//           ),
-//         ),
-//         const Gap(8),
-//         // Close button
-//         IconButton(
-//           icon: Icon(Icons.close, color: kDynamicText(context)),
-//           onPressed: _toggleSearch,
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-// class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-//   final String? title;
-//   final List<Widget>? actions;
-//   final VoidCallback? onBackTap;
-//   final bool centerTitle;
-//   final bool showLeading;
-//   final double textSize;
-//   final TextAlign? textAlign;
-//   final bool showNotificationIcon;
-//   final bool showAvatarIcon;
-//   final bool showBasketIcon;
-//   final bool showMessageIcon;
-//   final VoidCallback? onNotificationTap;
-//   final VoidCallback? onAvatarTap;
-//   final VoidCallback? onBasketTap;
-//   final VoidCallback? onMessageTap;
-//   final double elevation;
-//   final Color? backButtonColor;
-
-//   const CustomAppBar({
-//     super.key,
-//     this.title,
-//     this.actions,
-//     this.onBackTap,
-//     this.centerTitle = true,
-//     this.showLeading = false,
-//     this.textSize = 18,
-//     this.textAlign,
-//     this.showNotificationIcon = false,
-//     this.showAvatarIcon = false,
-//     this.showBasketIcon = false,
-//     this.showMessageIcon = false,
-//     this.onNotificationTap,
-//     this.onAvatarTap,
-//     this.onBasketTap,
-//     this.onMessageTap,
-//     this.elevation = 0,
-//     this.backButtonColor,
-//   });
-
-//   @override
-//   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-
-//   bool get _isRTL {
-//     final langCode = Get.locale?.languageCode ?? 'en';
-//     return langCode == 'ar' || langCode == 'sa';
-//   }
-
-//   // Standardized icon sizes
-//   static const double _smallIconSize = 20.0;
-//   static const double _mediumIconSize = 24.0;
-//   static const double _largeIconSize = 36.0;
-
-//   Widget _buildBackButton(BuildContext context) {
-//     return IconButton(
-//       onPressed: onBackTap ?? () => Get.back(),
-//       icon: Icon(
-//         _isRTL ? Icons.arrow_forward : Icons.arrow_back,
-//         color: backButtonColor ?? kDynamicIcon(context),
-//         size: 24.0, // Standard Material icon size
-//       ),
-//       padding: const EdgeInsets.all(16),
-//       constraints: const BoxConstraints(
-//         minWidth: 48,
-//         minHeight: 48,
-//       ),
-//       tooltip: 'Back',
-//     );
-//   }
-
-//   Widget _buildIconButton({
-//     required BuildContext context,
-//     required String asset,
-//     required VoidCallback? onTap,
-//     required double size,
-//     EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 4),
-//     bool isAvatar = false,
-//     String? tooltip,
-//   }) {
-//     return Padding(
-//       padding: padding,
-//       child: IconButton(
-//         onPressed: onTap ?? () {},
-//         icon: SvgPicture.asset(
-//           asset,
-//           height: size,
-//           width: size,
-//           colorFilter: isAvatar
-//               ? null
-//               : ColorFilter.mode(
-//                   kDynamicIcon(context),
-//                   BlendMode.srcIn,
-//                 ),
-//         ),
-//         padding: const EdgeInsets.all(8),
-//         constraints: BoxConstraints(
-//           minWidth: size + 16,
-//           minHeight: size + 16,
-//         ),
-//         tooltip: tooltip,
-//       ),
-//     );
-//   }
-
-//   List<Widget> _buildOptionalIcons(BuildContext context) {
-//     final icons = <Widget>[];
-
-//     if (showMessageIcon) {
-//       icons.add(
-//         _buildIconButton(
-//           context: context,
-//           asset: Assets.personfilled, // Use proper message icon asset
-//           onTap: onMessageTap,
-//           size: _mediumIconSize,
-//           tooltip: 'Messages',
-//         ),
-//       );
-//     }
-
-   
-
-//     if (showNotificationIcon) {
-//       icons.add(
-//         _buildIconButton(
-//           context: context,
-//           asset: Assets.notificationfilled, // Use proper notification icon asset
-//           onTap: onNotificationTap,
-//           size: _mediumIconSize,
-//           tooltip: 'Notifications',
-//         ),
-//       );
-//     }
-
-//     if (showAvatarIcon) {
-//       icons.add(
-//         _buildIconButton(
-//           context: context,
-//           asset: Assets.personfilled,
-//           onTap: onAvatarTap,
-//           size: _largeIconSize,
-//           padding: const EdgeInsets.symmetric(horizontal: 8),
-//           isAvatar: true,
-//           tooltip: 'Profile',
-//         ),
-//       );
-//     }
-
-//     return icons;
-//   }
-
-//   Widget _buildTitle() {
-//     if (title == null) return const SizedBox.shrink();
+  Widget _buildLogo(BuildContext context) {
+    if (logoUrl == null) return const SizedBox.shrink();
     
-//     return MyText(
-//       text: title!,
-//       size: textSize,
-//       color: kDynamicText(Get.context!),
-//       weight: FontWeight.w700,
-//       textAlign: textAlign ?? (_isRTL ? TextAlign.right : TextAlign.left),
-//       maxLines: 1,
-//       textOverflow: TextOverflow.ellipsis,
-//     );
-//   }
+    return Container(
+      width: 52,
+      height: 52,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: CommonImageView(
+        url: logoUrl!,
+        fit: BoxFit.contain,
+        radius: 8,
+      ),
+    );
+  }
 
-//   List<Widget> _buildActionIcons(BuildContext context) {
-//     final optionalIcons = _buildOptionalIcons(context);
-//     final customActions = actions ?? [];
+  Widget _buildTitleWithSubtitle(BuildContext context) {
+    if (title == null) return const SizedBox.shrink();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MyText(
+          text: title!,
+          size: textSize,
+          color: context.text,
+          weight: FontWeight.w700,
+          maxLines: 1,
+          textOverflow: TextOverflow.ellipsis,
+        ),
+        if (subtitle != null) ...[
+          const Gap(6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: context.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.location_on, color: context.primary, size: 12),
+                const Gap(4),
+                MyText(
+                  text: subtitle!,
+                  color: context.primary,
+                  size: 12,
+                  weight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
 
-//     if (_isRTL) {
-//       return [...customActions, ...optionalIcons];
-//     } else {
-//       return [...optionalIcons, ...customActions];
-//     }
-//   }
+  Widget _buildSimpleTitle(BuildContext context) {
+    if (title == null) return const SizedBox.shrink();
+    
+    return MyText(
+      text: title!,
+      size: textSize,
+      color: context.text,
+      weight: FontWeight.w700,
+      textAlign: textAlign,
+      maxLines: 1,
+      textOverflow: TextOverflow.ellipsis,
+    );
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return AppBar(
-//       backgroundColor: kDynamicScaffoldBackground(context),
-//       automaticallyImplyLeading: false,
-//       centerTitle: centerTitle,
-//       elevation: elevation,
-//       shadowColor: kDynamicShadow(context),
-//       leading: showLeading ? _buildBackButton(context) : null,
-//       leadingWidth: showLeading ? 48 : 0, // Consistent leading width
-//       titleSpacing: showLeading ? 0 : 16,
-//       title: _buildTitle(),
-//       actions: _buildActionIcons(context),
-//     );
-//   }
-// }
-// // ============================================================================
-// // EXTENSION: Search AppBar (Optional - use when search is needed)
-// // ============================================================================
+  List<Widget> _buildActionIcons(BuildContext context) {
+    final optionalIcons = _buildOptionalIcons(context);
+    final customActions = actions ?? [];
+    return [...optionalIcons, ...customActions];
+  }
 
-// class SearchableAppBar extends StatefulWidget implements PreferredSizeWidget {
-//   final String title;
-//   final Function(String) onSearchChanged;
-//   final List<Widget>? actions;
-//   final VoidCallback? onBackTap;
-//   final bool showLeading;
-//   final String? searchHint;
+  Widget _buildLeagueStyleHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: context.scaffoldBackground,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          if (showLeading) _buildBackButton(context),
+          if (showLeading && logoUrl != null) const Gap(16),
+          if (logoUrl != null) _buildLogo(context),
+          if (logoUrl != null) const Gap(16),
+          Expanded(
+            child: _buildTitleWithSubtitle(context),
+          ),
+          ..._buildActionIcons(context),
+        ],
+      ),
+    );
+  }
 
-//   const SearchableAppBar({
-//     super.key,
-//     required this.title,
-//     required this.onSearchChanged,
-//     this.actions,
-//     this.onBackTap,
-//     this.showLeading = false,
-//     this.searchHint,
-//   });
+  Widget _buildStandardHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: context.scaffoldBackground,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          if (showLeading) _buildBackButton(context),
+          if (showLeading) const Gap(16),
+          Expanded(
+            child: Center(
+              child: _buildSimpleTitle(context),
+            ),
+          ),
+          if (showLeading) const SizedBox(width: 44),
+          ..._buildActionIcons(context),
+        ],
+      ),
+    );
+  }
 
-//   @override
-//   State<SearchableAppBar> createState() => _SearchableAppBarState();
-
-//   @override
-//   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-// }
-
-// class _SearchableAppBarState extends State<SearchableAppBar> {
-//   bool _isSearching = false;
-//   late final TextEditingController _controller;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _controller = TextEditingController();
-//     _controller.addListener(_onSearchChanged);
-//   }
-
-//   @override
-//   void dispose() {
-//     _controller.dispose();
-//     super.dispose();
-//   }
-
-//   void _onSearchChanged() => widget.onSearchChanged(_controller.text);
-
-//   void _toggleSearch() {
-//     setState(() {
-//       _isSearching = !_isSearching;
-//       if (!_isSearching) {
-//         _controller.clear();
-//       }
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return AppBar(
-//       backgroundColor: kDynamicScaffoldBackground(context),
-//       automaticallyImplyLeading: false,
-//       leading: (_isSearching || widget.showLeading)
-//           ? InkWell(
-//               onTap: _isSearching
-//                   ? _toggleSearch
-//                   : (widget.onBackTap ?? Get.back),
-//               child: Padding(
-//                 padding: const EdgeInsets.all(10),
-//                 child: CommonImageView(
-//                   imagePath: Assets.arrowback,
-//                   height: 16,
-//                   color: kDynamicIcon(context),
-//                 ),
-//               ),
-//             )
-//           : null,
-//       titleSpacing: 0,
-//       title: AnimatedSwitcher(
-//         duration: const Duration(milliseconds: 300),
-//         child: _isSearching
-//             ? _buildSearchField(context)
-//             : MyText(
-//                 text: widget.title,
-//                 size: 18,
-//                 color: kDynamicText(context),
-//                 weight: FontWeight.w700,
-//               ),
-//       ),
-//       actions: _isSearching
-//           ? null
-//           : [
-//               IconButton(
-//                 icon: SvgPicture.asset(
-//                   Assets.searchunfilled,
-//                   height: 20,
-//                   color: kDynamicIcon(context),
-//                 ),
-//                 onPressed: _toggleSearch,
-//               ),
-//               if (widget.actions != null) ...widget.actions!,
-//             ],
-//     );
-//   }
-
-//   Widget _buildSearchField(BuildContext context) {
-//     return Container(
-//       key: const ValueKey('searchField'),
-//       margin: const EdgeInsets.only(right: 10, top: 26),
-//       child: MyTextField(
-//         controller: _controller,
-//         keyboardType: TextInputType.text,
-//         hint: widget.searchHint ?? 'Search ${widget.title}...',
-//         prefix: SvgPicture.asset(
-//           Assets.searchunfilled,
-//           height: 20,
-//           color: kDynamicIcon(context),
-//         ),
-//         suffix: _controller.text.isNotEmpty
-//             ? Bounce(
-//                 onTap: _controller.clear,
-//                 child: Icon(
-//                   Icons.clear,
-//                   size: 20,
-//                   color: kDynamicIcon(context),
-//                 ),
-//               )
-//             : null,
-//         autoFocus: true,
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    final hasLogoOrSubtitle = logoUrl != null || subtitle != null;
+    
+    return hasLogoOrSubtitle 
+        ? _buildLeagueStyleHeader(context)
+        : _buildStandardHeader(context);
+  }
+}

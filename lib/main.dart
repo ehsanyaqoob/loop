@@ -23,7 +23,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppLifecycleProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => SplashProvider()),
-        ChangeNotifierProvider(create: (_) => InitialProvider()),
         ChangeNotifierProvider(
           create: (context) => LeaguesProvider(
             apiService: Provider.of<ApiService>(context, listen: false),
@@ -39,10 +38,10 @@ class MyApp extends StatelessWidget {
             themeMode: themeProvider.themeMode,
             debugShowCheckedModeBanner: false,
             navigatorKey: Navigate.navigatorKey,
-            onGenerateRoute: AppRoutes.generateRoute,
+            onGenerateRoute: AppRoutes.generate,
             initialRoute: AppLinks.splash,
             builder: (context, child) {
-              return AnnotatedRegion<SystemUiOverlayStyle>(  
+              return AnnotatedRegion<SystemUiOverlayStyle>(
                 value: SystemUiOverlayStyle(
                   statusBarColor: Colors.transparent,
                   statusBarIconBrightness: context.isDarkMode
@@ -58,10 +57,9 @@ class MyApp extends StatelessWidget {
                   onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
                   child: StateAwareWidget(
                     child: child ?? const SizedBox(),
-                    onResume: () => debugPrint("App resumed callback fired."),
-                    onPause: () => debugPrint("App paused callback fired."),
-                    onInactive: () =>
-                        debugPrint("App inactive callback fired."),
+                    onResume: () {},
+                    onPause: () {},
+                    onInactive: () {},
                   ),
                 ),
               );
@@ -72,7 +70,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-// scoring screen for future 
-// live matches 

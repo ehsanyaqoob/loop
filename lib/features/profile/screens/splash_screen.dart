@@ -1,8 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:loop/export.dart';
-import 'package:loop/generated/assets.dart';
-import 'package:loop/generated/extensions/extension.dart';
 import 'package:loop/widget/common/dot-loader.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -24,8 +21,19 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _initializeAnimations();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SplashProvider>().initializeSplash(context);
+      _startAppFlow();
     });
+  }
+
+  void _startAppFlow() async {
+    if (!mounted) return;
+
+    final splashProvider = context.read<SplashProvider>();
+    await splashProvider.awaitSplashEnd();
+
+    if (mounted) {
+      await Navigate.offAll(AppLinks.leaguesCategory);
+    }
   }
 
   void _initializeAnimations() {
@@ -72,7 +80,6 @@ class _SplashScreenState extends State<SplashScreen>
         bottom: false,
         child: Stack(
           children: [
-            // Main logo centered
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -102,8 +109,6 @@ class _SplashScreenState extends State<SplashScreen>
                 ],
               ),
             ),
-
-            // Bottom section with loader
             Positioned(
               left: 0,
               right: 0,
@@ -130,6 +135,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 color: context.subtitle.withOpacity(0.7),
                                 size: 16.0,
                                 weight: FontWeight.w500,
+                                letterSpacing: 0.3,
                               ),
                             ],
                           ),
@@ -137,7 +143,6 @@ class _SplashScreenState extends State<SplashScreen>
                       },
                     ),
                     32.height,
-                    // Footer text - Instagram style
                     FadeTransition(
                       opacity: _fadeAnimation,
                       child: Column(
@@ -163,8 +168,6 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
             ),
-
-            // Debug theme toggle
             if (kDebugMode)
               Positioned(
                 top: 20,
